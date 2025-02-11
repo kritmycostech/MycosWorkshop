@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mycos workshop 01</title>
+    <style>
+        body {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 98vh;                    
+                    font-family: Arial, sans-serif;
+        }
+
+        .mainCard{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #dbeafe;   
+            width: 80%;         
+            height: 80%;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 300px;            
+        }
+        .card img {
+            width: 100%;
+            border-radius: 8px;
+        }
+        .card h3 {
+            font-size: 18px;
+            margin-top: 15px;
+        }
+        .card p {
+            font-size: 14px;
+            color: gray;
+        }
+
+        @media (max-width: 600px) {
+            .mainCard{                
+                width: 95%;         
+                height: 95%;                
+            }
+            .card {
+                width: 70%;                          
+            }
+            .card img {
+                width: 100%;                
+            }
+        }
+    </style>
+</head>
+<body>    
+    <div class="mainCard">
+        <div class="card">
+            <img src="images/image-qr-code.png" alt="QR Code">
+            <h3>Improve your front-end skills by building projects</h3>
+            <p>Scan the QR code to visit Frontend Mentor and take your coding skills to the next level</p>
+        </div>
+    </div>    
+</body>
+</html>
