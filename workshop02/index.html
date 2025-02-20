@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hi-Lo Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            width: 600px;
+        }
+        .left, .right {
+            flex: 1;
+            padding: 20px;
+        }
+        .right {
+            background-color: #FF5733;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            position: relative;
+        }
+        .dice {
+            width: 50px;
+            height: 50px;
+            margin: 5px;
+        }
+        .rolling {
+            animation: roll 0.5s infinite;
+        }
+        @keyframes roll {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 30%;
+            width: 30%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border: 1px solid black;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .betbox{
+            text-align: right;
+        }
+
+        .btn-gradient {
+            padding: 12px 24px;
+            background-image: linear-gradient(to right, #FFD700, #FFA500);
+            border: none;
+            border-radius: 25px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn-3d {
+            padding: 12px 24px;
+            background-color: #FFD700;
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 6px #DAA520;
+            transition: all 0.1s ease;
+        }
+
+        .btn-3d:active {
+            box-shadow: 0 0 #DAA520;
+            top: 6px;
+        }
+
+        .btn-outline {
+            padding: 12px 24px;
+            background-color: transparent;
+            border: 2px solid #FFD700;
+            border-radius: 5px;
+            color: #FFD700;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline:hover {
+            background-color: #FFD700;
+            color: #000;
+        }
+
+        #resultDice{
+            display: none;
+            position: absolute;
+            bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left">
+            <h2>Hi-Low Game</h2>
+            <p>Current Money: <span id="money">1000</span> ฿</p>
+            <label>Bet Money: <input type="number" class="betbox" id="betMoney" min="1" value="1"></label>
+            <p>Bet Option</p>
+            <label><input type="radio" name="betOption" value="low"> Low</label>
+            <label><input type="radio" name="betOption" value="mid"> Mid</label>
+            <label><input type="radio" name="betOption" value="high"> High</label>
+            <br><br>
+            <button type="button" class="btn-3d " onclick="rollDice()">Roll Dice</button>
+        </div>
+        <div class="right">
+            <img class="dice" id="dice1" src="images/dice1.png">
+            <img class="dice" id="dice2" src="images/dice1.png">
+            <img class="dice" id="dice3" src="images/dice1.png">
+            <label id="resultDice"></label>
+        </div>
+    </div>
+    <div id="modal" class="modal" style="text-align: center;">
+        <p id="modalContent"></p>
+        <button class="btn-outline" onclick="closeModal()">OK</button>
+    </div>
+    <script>        
+        //let money = 1000;
+        let money = getCookie("money");
+        if (money === null) {
+            money = 1000; 
+        } else {
+            money = parseInt(money); 
+        }
+        document.getElementById("money").textContent = money;
+
+        function rollDice() {
+            let bet = parseInt(document.getElementById("betMoney").value);
+            let option = document.querySelector("input[name='betOption']:checked");
+            if (!bet || bet > money || bet <= 0 || !option) {
+                alert("Invalid bet or option!");
+                return;
+            }
+
+            let dice1 = document.getElementById("dice1");
+            let dice2 = document.getElementById("dice2");
+            let dice3 = document.getElementById("dice3");
+
+            dice1.classList.add("rolling");
+            dice2.classList.add("rolling");
+            dice3.classList.add("rolling");
+
+            let rollingInterval = setInterval(() => {
+                dice1.src = `images/dice${Math.floor(Math.random() * 6) + 1}.png`;
+                dice2.src = `images/dice${Math.floor(Math.random() * 6) + 1}.png`;
+                dice3.src = `images/dice${Math.floor(Math.random() * 6) + 1}.png`;
+            }, 100);
+
+            setTimeout(() => {
+                clearInterval(rollingInterval);
+                
+                dice1.classList.remove("rolling");
+                dice2.classList.remove("rolling");
+                dice3.classList.remove("rolling");
+
+                let d1 = Math.floor(Math.random() * 6) + 1;
+                let d2 = Math.floor(Math.random() * 6) + 1;
+                let d3 = Math.floor(Math.random() * 6) + 1;
+                let sum = d1 + d2 + d3;
+
+                dice1.src = `images/dice${d1}.png`;
+                dice2.src = `images/dice${d2}.png`;
+                dice3.src = `images/dice${d3}.png`;
+
+                let betType = option.value;
+                let win = false;
+                let reward = 0;
+
+                if (betType === "high" && sum >= 12) {
+                    win = true;
+                    reward = bet * 2;
+                } else if (betType === "mid" && sum === 11) {
+                    win = true;
+                    reward = bet * 5;
+                } else if (betType === "low" && sum <= 10) {
+                    win = true;
+                    reward = bet * 2;
+                }
+
+                let modal = document.getElementById("modal");
+                let modalContent = document.getElementById("modalContent");
+
+                if (win) {
+                    money += reward;
+                    modalContent.innerHTML = `<h2>You Win!</h2><br>Total Dices : ${sum} <br> Get reward ${reward}฿`;
+                } else {
+                    money -= bet;
+                    if (money > 0)
+                        modalContent.innerHTML = `<h2>You lost!</h2><br>Total: ${sum} <br> You still have ${money} ฿. <br>Try again! Don't give up.`;
+                    else
+                        modalContent.innerHTML = `<h1>All money lost! WTF.</h1>`;
+                }
+
+                setCookie("money", money, 1);
+                document.getElementById("resultDice").innerText = `Total: ${sum}`;
+                document.getElementById("resultDice").style.display = "inline";
+                document.getElementById("money").innerText = money;
+                document.getElementById("betMoney").value = "1";
+                modal.style.display = "block";
+
+            }, 2000);
+        }
+        
+        function closeModal() {
+            document.getElementById("modal").style.display = "none";
+            document.getElementById("resultDice").style.display = "none"
+            document.getElementById("dice1").src = `images/dice1.png`;
+            document.getElementById("dice2").src = `images/dice1.png`;
+            document.getElementById("dice3").src = `images/dice1.png`;
+        }
+
+        document.getElementById("betMoney").addEventListener("focus", function() {
+            this.select(); 
+        });
+        
+        function setCookie(name, value, days) {
+            let expires = "";
+            if (days) {
+                let date = new Date();
+                date.setHours(23, 59, 59, 999); // หมดอายุเที่ยงคืน
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + value + expires + "; path=/";
+        }
+        
+        function getCookie(name) {
+            let nameEQ = name + "=";
+            let ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i].trim();
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+        
+        function deleteCookie(name) {
+            document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        }
+    </script>
+</body>
+</html>
